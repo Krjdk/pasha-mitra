@@ -4,10 +4,11 @@ import { BreedResult } from '../types';
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 if (!API_KEY) {
-  console.warn('Gemini API key not found. Please add VITE_GEMINI_API_KEY to your .env file.');
+  // Fail fast instead of using an insecure fallback key
+  throw new Error('VITE_GEMINI_API_KEY is missing. Please set it in your environment.');
 }
 
-const genAI = new GoogleGenerativeAI(API_KEY || 'demo-key');
+const genAI = new GoogleGenerativeAI(API_KEY);
 
 export class GeminiService {
   private model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
@@ -35,22 +36,45 @@ Focus on Indian cattle and buffalo breeds. If the image doesn't contain a clear 
       const result = await this.model.generateContent([prompt, imageData]);
       const response = await result.response;
       const text = response.text();
-      
-      // Extract JSON from response
+
+      // Extract and validate JSON from the model response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error('Invalid response format from AI model');
       }
-      
-      const breedData = JSON.parse(jsonMatch[0]);
-      
-      if (breedData.breed.toLowerCase().includes('error') || breedData.breed.toLowerCase().includes('not found')) {
+
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch {
+        throw new Error('AI response JSON parsing failed');
+      }
+
+      // Basic schema validation to avoid runtime errors
+      const data = parsed as Partial<BreedResult> & { breed?: string; confidence?: number };
+      if (!data || typeof data.breed !== 'string' || typeof data.confidence !== 'number') {
+        throw new Error('AI response missing required fields');
+      }
+
+      if (data.breed.toLowerCase().includes('error') || data.breed.toLowerCase().includes('not found')) {
         throw new Error('Could not identify breed from the image');
       }
-      
-      return breedData;
+
+      // Provide sensible fallbacks for optional arrays/strings
+      return {
+        breed: data.breed,
+        confidence: Math.max(0, Math.min(100, data.confidence)),
+        animalType: (data.animalType === 'cattle' || data.animalType === 'buffalo') ? data.animalType : 'cattle',
+        characteristics: Array.isArray(data.characteristics) ? data.characteristics : [],
+        productivity: typeof data.productivity === 'string' ? data.productivity : '',
+        careTips: Array.isArray(data.careTips) ? data.careTips : [],
+        origin: typeof data.origin === 'string' ? data.origin : '',
+        avgWeight: typeof data.avgWeight === 'string' ? data.avgWeight : '',
+        avgHeight: typeof data.avgHeight === 'string' ? data.avgHeight : '',
+        lifespan: typeof data.lifespan === 'string' ? data.lifespan : ''
+      };
     } catch (error) {
-      console.error('Error analyzing image:', error);
+      // Avoid leaking error details in production; provide user-friendly message
       throw new Error('Failed to analyze image. Please try again with a clearer photo.');
     }
   }
