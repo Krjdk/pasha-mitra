@@ -9,6 +9,13 @@ if (!API_KEY) {
 
 const genAI = new GoogleGenerativeAI(API_KEY || 'demo-key');
 
+interface GenerativePart {
+  inlineData: {
+    data: string;
+    mimeType: string;
+  };
+}
+
 export class GeminiService {
   private model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
@@ -42,7 +49,7 @@ Focus on Indian cattle and buffalo breeds. If the image doesn't contain a clear 
         throw new Error('Invalid response format from AI model');
       }
       
-      const breedData = JSON.parse(jsonMatch[0]);
+      const breedData: BreedResult = JSON.parse(jsonMatch[0]);
       
       if (breedData.breed.toLowerCase().includes('error') || breedData.breed.toLowerCase().includes('not found')) {
         throw new Error('Could not identify breed from the image');
@@ -55,7 +62,7 @@ Focus on Indian cattle and buffalo breeds. If the image doesn't contain a clear 
     }
   }
 
-  private async fileToGenerativePart(file: File): Promise<any> {
+  private async fileToGenerativePart(file: File): Promise<GenerativePart> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Sparkles, Award } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 const Header: React.FC = () => {
   return (
@@ -29,8 +29,7 @@ const Header: React.FC = () => {
       
       <div className="relative z-10 py-12 px-4 hover:py-16 transition-all duration-500">
         <div className="max-w-6xl mx-auto text-center">
-          {/* Award badge */}
-          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 px-4 py-2 rounded-full mb-6 text-white hover:bg-white/30 hover:scale-105 transition-all duration-300 cursor-pointer group/badge">
+          {/* Title row */}
           <div className="flex items-center justify-center gap-4 mb-4 group/title">
             <div className="text-6xl animate-pulse hover:animate-spin hover:scale-125 transition-all duration-500 cursor-pointer">🐄</div>
             <div className="hover:scale-105 transition-transform duration-300">
@@ -81,5 +80,3 @@ const Header: React.FC = () => {
 };
 
 export default Header;
-  )
-}

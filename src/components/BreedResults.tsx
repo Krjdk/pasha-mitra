@@ -1,6 +1,6 @@
 import React from 'react';
 import { BreedResult } from '../types';
-import { ArrowLeft, MapPin, Weight, Ruler, Clock, Milk, Star, TrendingUp, Shield } from 'lucide-react';
+import { MapPin, Weight, Ruler, Clock, Star, TrendingUp, Shield } from 'lucide-react';
 
 interface BreedResultsProps {
   result: BreedResult;
@@ -26,7 +26,7 @@ const BreedResults: React.FC<BreedResultsProps> = ({ result, onBack, imageUrl })
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto animate-fadeIn">
       {/* Header with back button and confidence */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-white/20">
         <div className="flex items-center justify-between mb-4">
