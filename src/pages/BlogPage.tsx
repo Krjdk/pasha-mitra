@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, User, ArrowRight, TrendingUp, AlertTriangle, Heart } from 'lucide-react';
+import { Calendar, User, ArrowRight, AlertTriangle, Heart } from 'lucide-react';
 
 const BlogPage: React.FC = () => {
   const blogPosts = [
